@@ -1,0 +1,56 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  pelotonId     String?   @unique
+  image         String?
+  workouts      Workout[]
+  achievements  Achievement[]
+  comments      Comment[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Workout {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id])
+  pelotonWorkoutId String
+  instructorId     String
+  className        String
+  startTime        DateTime
+  endTime          DateTime
+  metrics          Json?
+  comments         Comment[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model Achievement {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  type        String
+  description String
+  earnedAt    DateTime  @default(now())
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  content   String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  workoutId String
+  workout   Workout   @relation(fields: [workoutId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
